@@ -32,8 +32,11 @@ export const WEEKDAYS = [
 
 const toString = Object.prototype.toString;
 
+const isParsedDate = obj => obj && obj.__type === 'Date' && typeof obj.iso === 'string';
+const isDateObj = obj => typeof obj === 'object' && toString.call(obj).indexOf('Date') > -1;
+
 export function isDate(obj) {
-  return typeof obj === 'object' && toString.call(obj).indexOf('Date') > -1;
+  return isDateObj(obj) || isParsedDate(obj);
 }
 
 export function getWeekday(n) {
@@ -170,4 +173,16 @@ export function pad(number) {
     r = '0' + r;
   }
   return r;
+}
+
+/*  Prevent the date from being a object as
+ *  { __type: 'Date', iso: '2019-01-01T00:00:00.000Z' } for example.
+ */
+export function formatParsedDate(date) {
+  if (isParsedDate(date)) {
+    const parsedDate = new Date(date.iso);
+    return parsedDate.toISOString();
+  } else if (isDateObj(date)) {
+    return date.toISOString();
+  }
 }
