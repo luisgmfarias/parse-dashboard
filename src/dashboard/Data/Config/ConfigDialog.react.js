@@ -199,23 +199,27 @@ export default class ConfigDialog extends React.Component {
         ))}
       </Dropdown>
     );
-    const configHistory = localStorage.getItem(`${this.context.applicationId}_configHistory`) && JSON.parse(localStorage.getItem(`${this.context.applicationId}_configHistory`))[this.state.name];
+    const configHistory =
+      localStorage.getItem(`${this.context.applicationId}_configHistory`) &&
+      JSON.parse(localStorage.getItem(`${this.context.applicationId}_configHistory`))[
+        this.state.name
+      ];
     const handleIndexChange = index => {
-      if(this.state.type === 'Date'){
+      if (this.state.type === 'Date') {
         return;
       }
       let value = configHistory[index].value;
-      if(this.state.type === 'File'){
+      if (this.state.type === 'File') {
         const fileJSON = {
           __type: 'File',
           name: value.name,
-          url: value.url
+          url: value.url,
         };
         const file = Parse.File.fromJSON(fileJSON);
         this.setState({ selectedIndex: index, value: file });
         return;
       }
-      if(typeof value === 'object'){
+      if (typeof value === 'object') {
         value = JSON.stringify(value);
       }
       this.setState({ selectedIndex: index, value });
@@ -265,27 +269,26 @@ export default class ConfigDialog extends React.Component {
           */
           semver.valid(this.props.parseServerVersion) &&
           semver.gte(this.props.parseServerVersion, '3.9.0') ? (
-              <Field
-                label={
-                  <Label
-                    text="Requires master key?"
-                    description="When set to yes the parameter is returned only when requested with the master key. You can change it at any time."
-                  />
-                }
-                input={
-                  <Toggle
-                    type={Toggle.Types.YES_NO}
-                    value={this.state.masterKeyOnly}
-                    onChange={masterKeyOnly => this.setState({ masterKeyOnly })}
-                    additionalStyles={{ margin: '0px' }}
-                  />
-                }
-                className={styles.addColumnToggleWrapper}
-              />
-            ) : null
+            <Field
+              label={
+                <Label
+                  text="Requires master key?"
+                  description="When set to yes the parameter is returned only when requested with the master key. You can change it at any time."
+                />
+              }
+              input={
+                <Toggle
+                  type={Toggle.Types.YES_NO}
+                  value={this.state.masterKeyOnly}
+                  onChange={masterKeyOnly => this.setState({ masterKeyOnly })}
+                  additionalStyles={{ margin: '0px' }}
+                />
+              }
+              className={styles.addColumnToggleWrapper}
+            />
+          ) : null
         }
-        {
-          configHistory?.length > 0 &&
+        {configHistory?.length > 0 && (
           <Field
             label={
               <Label
@@ -294,19 +297,17 @@ export default class ConfigDialog extends React.Component {
               />
             }
             input={
-              <Dropdown
-                value={this.state.selectedIndex}
-                onChange={handleIndexChange}>
-                {configHistory.map((value, i) =>
+              <Dropdown value={this.state.selectedIndex} onChange={handleIndexChange}>
+                {configHistory.map((value, i) => (
                   <Option key={i} value={i}>
                     {dateStringUTC(new Date(value.time))}
                   </Option>
-                )}
+                ))}
               </Dropdown>
             }
             className={styles.addColumnToggleWrapper}
           />
-        }
+        )}
       </Modal>
     );
   }
