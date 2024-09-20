@@ -21,6 +21,7 @@ import TableView from 'dashboard/TableView.react';
 import Toolbar from 'components/Toolbar/Toolbar.react';
 import browserStyles from 'dashboard/Data/Browser/Browser.scss';
 import { CurrentApp } from 'context/currentApp';
+import { formatParsedDate } from '../../../lib/DateUtils';
 
 @subscribeTo('Config', 'config')
 class Config extends TableView {
@@ -112,7 +113,7 @@ class Config extends TableView {
     if (type === 'object') {
       if (isDate(value)) {
         type = 'Date';
-        value = value.toISOString();
+        value = formatParsedDate(value);
       } else if (Array.isArray(value)) {
         type = 'Array';
         value = JSON.stringify(value);
