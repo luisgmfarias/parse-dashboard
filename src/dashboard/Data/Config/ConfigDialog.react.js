@@ -48,7 +48,10 @@ const EDITORS = {
   Number: (value, onChange) => (
     <TextInput value={value || ''} onChange={numberValidator(onChange)} />
   ),
-  Date: (value, onChange) => <DateTimeInput fixed={true} value={value} onChange={onChange} />,
+  Date: (value, onChange) => {
+    const date = value === null ? null : new Date(value);
+    return <DateTimeInput fixed={true} value={date} onChange={onChange} />;
+  },
   Object: (value, onChange) => (
     <TextInput
       multiline={true}
