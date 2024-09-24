@@ -114,6 +114,7 @@ class Config extends TableView {
       if (isDate(value)) {
         type = 'Date';
         value = formatParsedDate(value);
+        modalValue = value;
       } else if (Array.isArray(value)) {
         type = 'Array';
         value = JSON.stringify(value);
