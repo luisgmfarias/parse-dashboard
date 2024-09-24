@@ -14,6 +14,19 @@ describe('isDate', () => {
     expect(DateUtils.isDate(12)).toBe(false);
     expect(DateUtils.isDate({})).toBe(false);
   });
+
+  it('returns true for Parse date objects', () => {
+    const parseDate = { __type: 'Date', iso: '2024-09-03T05:42:00.000Z' };
+    expect(DateUtils.isDate(parseDate)).toBe(true);
+  })
+
+  it('returns false for objects that look like dates but are not valid', () => {
+    const invalidDate = { __type: 'Date', iso: 123 };
+    expect(DateUtils.isDate(invalidDate)).toBe(false);
+
+    const incompleteParseDate = { __type: 'Date' };
+    expect(DateUtils.isDate(incompleteParseDate)).toBe(false);
+  });
 });
 
 describe('shortMonth', () => {
@@ -63,5 +76,19 @@ describe('daysInMonth', () => {
     expect(DateUtils.daysInMonth(new Date(2015, 1))).toBe(28);
     expect(DateUtils.daysInMonth(new Date(2012, 1))).toBe(29);
     expect(DateUtils.daysInMonth(new Date(2015, 8))).toBe(30);
+  });
+});
+
+describe('formatParsedDate', () => {
+  it('correctly formats a native Date object to ISO string', () => {
+    const date = new Date('2024-09-03T05:42:00.000Z');
+    const formattedDate = DateUtils.formatParsedDate(date);
+    expect(formattedDate).toBe(date.toISOString());
+  });
+
+  it('correctly formats a Parse Date object to ISO string', () => {
+    const parseDate = { __type: 'Date', iso: '2024-09-03T05:42:00.000Z' };
+    const formattedDate = DateUtils.formatParsedDate(parseDate);
+    expect(formattedDate).toBe('2024-09-03T05:42:00.000Z');
   });
 });

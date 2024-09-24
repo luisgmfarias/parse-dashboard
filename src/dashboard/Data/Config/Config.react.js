@@ -21,6 +21,7 @@ import TableView from 'dashboard/TableView.react';
 import Toolbar from 'components/Toolbar/Toolbar.react';
 import browserStyles from 'dashboard/Data/Browser/Browser.scss';
 import { CurrentApp } from 'context/currentApp';
+import { formatParsedDate } from '../../../lib/DateUtils';
 
 @subscribeTo('Config', 'config')
 class Config extends TableView {
@@ -112,7 +113,8 @@ class Config extends TableView {
     if (type === 'object') {
       if (isDate(value)) {
         type = 'Date';
-        value = value.toISOString();
+        value = formatParsedDate(value);
+        modalValue = value;
       } else if (Array.isArray(value)) {
         type = 'Array';
         value = JSON.stringify(value);
@@ -244,7 +246,7 @@ class Config extends TableView {
     return data;
   }
 
-  saveParam({ name, value, type,  masterKeyOnly }) {
+  saveParam({ name, value, type, masterKeyOnly }) {
     this.props.config
       .dispatch(ActionTypes.SET, {
         param: name,
@@ -257,28 +259,39 @@ class Config extends TableView {
           const limit = this.context.cloudConfigHistoryLimit;
           const applicationId = this.context.applicationId;
           let transformedValue = value;
-          if(type === 'Date') {
-            transformedValue = {__type: 'Date', iso: value};
+          if (type === 'Date') {
+            transformedValue = { __type: 'Date', iso: value };
           }
-          if(type === 'File') {
-            transformedValue = {name: value._name, url: value._url};
+          if (type === 'File') {
+            transformedValue = { name: value._name, url: value._url };
           }
           const configHistory = localStorage.getItem(`${applicationId}_configHistory`);
-          if(!configHistory) {
-            localStorage.setItem(`${applicationId}_configHistory`, JSON.stringify({
-              [name]: [{
-                time: new Date(),
-                value: transformedValue
-              }]
-            }));
+          if (!configHistory) {
+            localStorage.setItem(
+              `${applicationId}_configHistory`,
+              JSON.stringify({
+                [name]: [
+                  {
+                    time: new Date(),
+                    value: transformedValue,
+                  },
+                ],
+              })
+            );
           } else {
             const oldConfigHistory = JSON.parse(configHistory);
-            localStorage.setItem(`${applicationId}_configHistory`, JSON.stringify({
-              ...oldConfigHistory,
-              [name]: !oldConfigHistory[name] ?
-                [{time: new Date(), value: transformedValue}]
-                : [{time: new Date(), value: transformedValue}, ...oldConfigHistory[name]].slice(0, limit || 100)
-            }));
+            localStorage.setItem(
+              `${applicationId}_configHistory`,
+              JSON.stringify({
+                ...oldConfigHistory,
+                [name]: !oldConfigHistory[name]
+                  ? [{ time: new Date(), value: transformedValue }]
+                  : [
+                      { time: new Date(), value: transformedValue },
+                      ...oldConfigHistory[name],
+                    ].slice(0, limit || 100),
+              })
+            );
           }
         },
         () => {
@@ -291,10 +304,11 @@ class Config extends TableView {
     this.props.config.dispatch(ActionTypes.DELETE, { param: name }).then(() => {
       this.setState({ showDeleteParameterDialog: false });
     });
-    const configHistory = localStorage.getItem('configHistory') && JSON.parse(localStorage.getItem('configHistory'));
-    if(configHistory) {
+    const configHistory =
+      localStorage.getItem('configHistory') && JSON.parse(localStorage.getItem('configHistory'));
+    if (configHistory) {
       delete configHistory[name];
-      if(Object.keys(configHistory).length === 0) {
+      if (Object.keys(configHistory).length === 0) {
         localStorage.removeItem('configHistory');
       } else {
         localStorage.setItem('configHistory', JSON.stringify(configHistory));
